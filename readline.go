@@ -28,6 +28,9 @@ type Instance struct {
 }
 
 type Config struct {
+	// AutoCompleteKey - defaults to CharTab (0x09)
+	AutoCompleteKey rune
+
 	// prompt supports ANSI escape sequence, so we can color some characters even in windows
 	Prompt string
 
@@ -99,6 +102,10 @@ func (c *Config) Init() error {
 	c.inited = true
 	if c.Stdin == nil {
 		c.Stdin = NewCancelableStdin(Stdin)
+	}
+
+	if c.AutoCompleteKey == 0 {
+		c.AutoCompleteKey = CharTab
 	}
 
 	c.Stdin, c.StdinWriter = NewFillableStdin(c.Stdin)

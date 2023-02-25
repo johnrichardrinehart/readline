@@ -20,6 +20,7 @@ var (
 )
 
 const (
+	CharNull      = 0
 	CharLineStart = 1
 	CharBackward  = 2
 	CharInterrupt = 3
@@ -43,6 +44,7 @@ const (
 	CharCtrlY     = 25
 	CharCtrlZ     = 26
 	CharEsc       = 27
+	CharQuestion  = 63
 	CharO         = 79
 	CharEscapeEx  = 91
 	CharBackspace = 127

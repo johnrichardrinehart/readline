@@ -27,6 +27,8 @@ type Operation struct {
 	errchan chan error
 	w       io.Writer
 
+	charComplete rune
+
 	history *opHistory
 	*opSearch
 	*opCompleter
@@ -79,6 +81,11 @@ func NewOperation(t *Terminal, cfg *Config) *Operation {
 	op.opVim = newVimMode(op)
 	op.opCompleter = newOpCompleter(op.buf.w, op, width)
 	op.opPassword = newOpPassword(op)
+	op.charComplete = CharTab // default
+	if cfg.AutoCompleteKey != CharNull {
+		op.charComplete = cfg.AutoCompleteKey
+	}
+	op.charComplete = cfg.AutoCompleteKey
 	op.cfg.FuncOnWidthChanged(func() {
 		newWidth := cfg.FuncGetWidth()
 		op.opCompleter.OnWidthChange(newWidth)
@@ -172,7 +179,7 @@ func (o *Operation) ioloop() {
 				o.ExitCompleteMode(true)
 				o.buf.Refresh(nil)
 			}
-		case CharTab:
+		case o.charComplete:
 			if o.GetConfig().AutoComplete == nil {
 				o.t.Bell()
 				break
