@@ -294,14 +294,20 @@ func (o *Operation) ioloop() {
 				break
 			}
 
-			// treat as EOF
-			if !o.GetConfig().UniqueEditLine {
-				o.buf.WriteString(o.GetConfig().EOFPrompt + "\n")
-			}
 			o.buf.Reset()
-			isUpdateHistory = false
-			o.history.Revert()
-			o.errchan <- io.EOF
+
+			// treat as EOF
+			if o.GetConfig().IsCtrlDEOF {
+				isUpdateHistory = false
+				o.history.Revert()
+				o.errchan <- io.EOF
+				if !o.GetConfig().UniqueEditLine {
+					o.buf.WriteString(o.GetConfig().EOFPrompt + "\n")
+				}
+			} else {
+				o.errchan <- nil
+			}
+
 			if o.GetConfig().UniqueEditLine {
 				o.buf.Clean()
 			}
