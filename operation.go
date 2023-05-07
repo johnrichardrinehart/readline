@@ -346,6 +346,21 @@ func (o *Operation) ioloop() {
 				keepInSearchMode = true
 				break
 			}
+			if f, exists := o.GetConfig().CustomBinding[r]; exists {
+				var data []rune
+				if !o.GetConfig().UniqueEditLine {
+					o.buf.WriteRune('\n')
+					data = o.buf.Reset()
+					data = data[:len(data)-1] // trim \n
+				} else {
+					o.buf.Clean()
+					data = o.buf.Reset()
+				}
+				o.outchan <- data
+
+				f()
+				continue
+			}
 			o.buf.WriteRune(r)
 			if o.IsInCompleteMode() {
 				o.OnComplete()

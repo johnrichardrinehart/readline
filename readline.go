@@ -88,6 +88,8 @@ type Config struct {
 	FuncOnWidthChanged  func(func())
 	ForceUseInteractive bool
 
+	CustomBinding map[rune]func()
+
 	// private fields
 	inited    bool
 	opHistory *opHistory
@@ -155,6 +157,9 @@ func (c *Config) Init() error {
 	}
 	if c.FuncOnWidthChanged == nil {
 		c.FuncOnWidthChanged = DefaultOnWidthChanged
+	}
+	if c.CustomBinding == nil {
+		c.CustomBinding = make(map[rune]func())
 	}
 
 	return nil
