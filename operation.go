@@ -335,7 +335,11 @@ func (o *Operation) ioloop() {
 			}
 			isUpdateHistory = false
 			o.history.Revert()
-			o.errchan <- &InterruptError{remain}
+			if o.GetConfig().IsCtrlCExit {
+				o.errchan <- &InterruptError{remain}
+			} else {
+				o.errchan <- nil
+			}
 		default:
 			if o.IsSearchMode() {
 				o.SearchChar(r)
