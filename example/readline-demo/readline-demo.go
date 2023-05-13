@@ -78,6 +78,8 @@ func main() {
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 
+		IsVerticalAutocomplete: true,
+
 		HistorySearchFold:   true,
 		FuncFilterInputRune: filterInput,
 	})

@@ -191,53 +191,75 @@ func (o *opCompleter) CompleteRefresh() {
 	}
 	lineCnt := o.op.buf.CursorLineCount()
 	colWidth := 0
-	for _, c := range o.candidate {
-		w := runes.WidthAll(c)
-		if w > colWidth {
-			colWidth = w
-		}
-	}
+
+	buf := bufio.NewWriter(o.w)
+	lines := 1
 	colWidth += o.candidateOff + 1
 	same := o.op.buf.RuneSlice(-o.candidateOff)
 
-	// -1 to avoid reach the end of line
-	width := o.width - 1
-	colNum := width / colWidth
-	if colNum != 0 {
-		colWidth += (width - (colWidth * colNum)) / colNum
-	}
+	if o.op.cfg.IsVerticalAutocomplete {
+		buf.Write(bytes.Repeat([]byte("\n"), lineCnt))
 
-	o.candidateColNum = colNum
-	buf := bufio.NewWriter(o.w)
-	buf.Write(bytes.Repeat([]byte("\n"), lineCnt))
-
-	colIdx := 0
-	lines := 1
-	buf.WriteString("\033[J")
-	for idx, c := range o.candidate {
-		inSelect := idx == o.candidateChoise && o.IsInCompleteSelectMode()
-		if inSelect {
-			buf.WriteString("\033[30;47m")
-		}
-		buf.WriteString(string(same))
-		buf.WriteString(string(c))
-		buf.Write(bytes.Repeat([]byte(" "), colWidth-runes.WidthAll(c)-runes.WidthAll(same)))
-
-		if inSelect {
-			buf.WriteString("\033[0m")
-		}
-
-		colIdx++
-		if colIdx == colNum {
+		buf.WriteString("\033[J")
+		for idx, c := range o.candidate {
+			inSelect := idx == o.candidateChoise && o.IsInCompleteSelectMode()
+			if inSelect {
+				buf.WriteString("\033[30;47m")
+			}
+			buf.WriteString(string(same))
+			buf.WriteString(string(c))
 			buf.WriteString("\n")
-			lines++
-			colIdx = 0
+
+			if inSelect {
+				buf.WriteString("\033[0m")
+			}
+		}
+	} else {
+		for _, c := range o.candidate {
+			w := runes.WidthAll(c)
+			if w > colWidth {
+				colWidth = w
+			}
+		}
+
+		// -1 to avoid reach the end of line
+		width := o.width - 1
+		colNum := width / colWidth
+		if colNum != 0 {
+			colWidth += (width - (colWidth * colNum)) / colNum
+		}
+
+		o.candidateColNum = colNum
+		buf := bufio.NewWriter(o.w)
+		buf.Write(bytes.Repeat([]byte("\n"), lineCnt))
+
+		colIdx := 0
+		buf.WriteString("\033[J")
+		for idx, c := range o.candidate {
+			inSelect := idx == o.candidateChoise && o.IsInCompleteSelectMode()
+			if inSelect {
+				buf.WriteString("\033[30;47m")
+			}
+			buf.WriteString(string(same))
+			buf.WriteString(string(c))
+			buf.Write(bytes.Repeat([]byte(" "), colWidth-runes.WidthAll(c)-runes.WidthAll(same)))
+
+			if inSelect {
+				buf.WriteString("\033[0m")
+			}
+
+			colIdx++
+			if colIdx == colNum {
+				buf.WriteString("\n")
+				lines++
+				colIdx = 0
+			}
 		}
 	}
 
 	// move back
 	fmt.Fprintf(buf, "\033[%dA\r", lineCnt-1+lines)
-	fmt.Fprintf(buf, "\033[%dC", o.op.buf.idx+o.op.buf.PromptLen())
+	// fmt.Fprintf(buf, "\033[%dC", o.op.buf.idx+o.op.buf.PromptLen())
 	buf.Flush()
 }
 

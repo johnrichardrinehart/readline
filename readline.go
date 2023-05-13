@@ -77,6 +77,9 @@ type Config struct {
 	// should Ctrl-D (character code 0x04) be treated as EOF
 	IsCtrlDEOF bool
 
+	// should autocompletion print vertically or wrap horizontally (default)
+	IsVerticalAutocomplete bool
+
 	// filter input runes (may be used to disable CtrlZ or for translating some keys to different actions)
 	// -> output = new (translated) rune and true/false if continue with processing this one
 	FuncFilterInputRune func(rune) (rune, bool)
