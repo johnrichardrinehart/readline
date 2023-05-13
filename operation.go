@@ -185,7 +185,7 @@ func (o *Operation) ioloop() {
 				break
 			}
 			if o.OnComplete() {
-				keepInCompleteMode = true
+				keepInCompleteMode = o.cfg.IsSelectCompletion
 			} else {
 				o.t.Bell()
 				break
