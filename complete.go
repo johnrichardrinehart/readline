@@ -259,7 +259,8 @@ func (o *opCompleter) CompleteRefresh() {
 
 	// move back
 	fmt.Fprintf(buf, "\033[%dA\r", lineCnt-1+lines)
-	// fmt.Fprintf(buf, "\033[%dC", o.op.buf.idx+o.op.buf.PromptLen())
+	fmt.Fprintf(buf, "\n")
+	buf.WriteString(o.op.cfg.Prompt)
 	buf.Flush()
 }
 
