@@ -80,6 +80,9 @@ type Config struct {
 	// should autocompletion print vertically or wrap horizontally (default)
 	IsVerticalAutocomplete bool
 
+	// should a double-press of the completion key iteratively select candidates
+	IsSelectCompletion bool
+
 	// filter input runes (may be used to disable CtrlZ or for translating some keys to different actions)
 	// -> output = new (translated) rune and true/false if continue with processing this one
 	FuncFilterInputRune func(rune) (rune, bool)
