@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"unicode"
 )
 
 type AutoCompleter interface {
@@ -15,12 +16,12 @@ type AutoCompleter interface {
 	//   Do("g", 1) => ["o", "it", "it-shell", "rep"], 1
 	//   Do("gi", 2) => ["t", "t-shell"], 2
 	//   Do("git", 3) => ["", "-shell"], 3
-	Do(line []rune, pos int) (newLine [][]rune, length int)
+	Do(line []rune, pos int, long bool) (newLine [][]rune, length int)
 }
 
 type TabCompleter struct{}
 
-func (t *TabCompleter) Do([]rune, int) ([][]rune, int) {
+func (t *TabCompleter) Do([]rune, int, bool) ([][]rune, int) {
 	return [][]rune{[]rune("\t")}, 0
 }
 
@@ -84,7 +85,12 @@ func (o *opCompleter) OnComplete() bool {
 
 	o.ExitCompleteSelectMode()
 	o.candidateSource = rs
-	newLines, offset := o.op.cfg.AutoComplete.Do(rs, buf.idx)
+	longMode := false
+	// if we're on a new token then we want to dump the long form
+	if o.op.buf.idx == 0 || unicode.IsSpace(o.op.buf.buf[o.op.buf.buf[o.op.buf.idx]-1]) {
+		longMode = true
+	}
+	newLines, offset := o.op.cfg.AutoComplete.Do(rs, buf.idx, longMode)
 	if len(newLines) == 0 {
 		o.ExitCompleteMode(false)
 		return true

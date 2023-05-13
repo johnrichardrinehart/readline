@@ -69,7 +69,7 @@ func SplitSegment(line []rune, pos int) ([][]rune, int) {
 	return segs, pos
 }
 
-func (c *SegmentComplete) Do(line []rune, pos int) (newLine [][]rune, offset int) {
+func (c *SegmentComplete) Do(line []rune, pos int, long bool) (newLine [][]rune, offset int) {
 
 	segment, idx := SplitSegment(line, pos)
 

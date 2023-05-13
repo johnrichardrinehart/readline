@@ -10,7 +10,7 @@ type DynamicCompleteFunc func(string) []string
 
 type PrefixCompleterInterface interface {
 	Print(prefix string, level int, buf *bytes.Buffer)
-	Do(line []rune, pos int) (newLine [][]rune, length int)
+	Do(line []rune, pos int, long bool) (newLine [][]rune, length int)
 	GetName() []rune
 	GetChildren() []PrefixCompleterInterface
 	SetChildren(children []PrefixCompleterInterface)
@@ -100,7 +100,7 @@ func PcItemDynamic(callback DynamicCompleteFunc, pc ...PrefixCompleterInterface)
 	}
 }
 
-func (p *PrefixCompleter) Do(line []rune, pos int) (newLine [][]rune, offset int) {
+func (p *PrefixCompleter) Do(line []rune, pos int, long bool) (newLine [][]rune, offset int) {
 	return doInternal(p, line, pos, line)
 }
 
