@@ -59,7 +59,7 @@
         in
         {
           default = pkgs.mkShell {
-            buildInputs = with pkgs; [ go gopls gcc stdenv.cc.cc.libgcc ];
+            buildInputs = with pkgs; [ go gopls gcc stdenv.cc.cc.libgcc delve ];
           };
         });
 
