@@ -362,10 +362,6 @@ func (o *Operation) ioloop() {
 				continue
 			}
 			o.buf.WriteRune(r)
-			if o.IsInCompleteMode() {
-				o.OnComplete()
-				keepInCompleteMode = true
-			}
 		}
 
 		listener := o.GetConfig().Listener
