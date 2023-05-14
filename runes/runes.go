@@ -131,13 +131,15 @@ func HasPrefix(r, prefix []rune) bool {
 	return Equal(r[:len(prefix)], prefix)
 }
 
-func Aggregate(candicate [][]rune) (same []rune, size int) {
-	for i := 0; i < len(candicate[0]); i++ {
-		for j := 0; j < len(candicate)-1; j++ {
-			if i >= len(candicate[j]) || i >= len(candicate[j+1]) {
+// Intersect finds a (possibly empty) prefix shared among all candidate rune
+// slices and return that slice and its size
+func Intersect(candidates [][]rune) (same []rune, size int) {
+	for i := 0; i < len(candidates[0]); i++ {
+		for j := 0; j < len(candidates)-1; j++ {
+			if i >= len(candidates[j]) || i >= len(candidates[j+1]) {
 				goto aggregate
 			}
-			if candicate[j][i] != candicate[j+1][i] {
+			if candidates[j][i] != candidates[j+1][i] {
 				goto aggregate
 			}
 		}
@@ -145,11 +147,11 @@ func Aggregate(candicate [][]rune) (same []rune, size int) {
 	}
 aggregate:
 	if size > 0 {
-		same = Copy(candicate[0][:size])
-		for i := 0; i < len(candicate); i++ {
-			n := Copy(candicate[i])
+		same = Copy(candidates[0][:size])
+		for i := 0; i < len(candidates); i++ {
+			n := Copy(candidates[i])
 			copy(n, n[size:])
-			candicate[i] = n[:len(n)-size]
+			candidates[i] = n[:len(n)-size]
 		}
 	}
 	return

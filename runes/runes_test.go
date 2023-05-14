@@ -54,7 +54,7 @@ func TestAggRunes(t *testing.T) {
 		},
 	}
 	for _, r := range runes {
-		same, off := Aggregate(r.r)
+		same, off := Intersect(r.r)
 		if off != r.length {
 			t.Fatal("result not expect", off)
 		}
