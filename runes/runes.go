@@ -123,6 +123,7 @@ func Copy(r []rune) []rune {
 	return n
 }
 
+// true if r starts with prefix
 func HasPrefix(r, prefix []rune) bool {
 	if len(r) < len(prefix) {
 		return false

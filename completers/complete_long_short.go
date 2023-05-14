@@ -24,6 +24,7 @@ type DynamicLongShortCompleterInterface interface {
 
 type LongShortCompleter struct {
 	Name     []rune
+	Text     []rune
 	Dynamic  bool
 	Callback DynamicCompleteFunc
 	Children []LongShortCompleterInterface
@@ -83,34 +84,42 @@ func NewLongShortCompleter(pc ...LongShortCompleterInterface) *LongShortComplete
 	return LongShortCompleterItem("", "", pc...)
 }
 
-func LongShortCompleterItem(name, extension string, pc ...LongShortCompleterInterface) *LongShortCompleter {
-	name += " "
+func LongShortCompleterItem(name, text string, children ...LongShortCompleterInterface) *LongShortCompleter {
+	name += ""
 	return &LongShortCompleter{
 		Name:     []rune(name),
+		Text:     []rune(text),
 		Dynamic:  false,
-		Children: pc,
+		Children: children,
 	}
 }
 
-func LongShortCompleterItemDynamic(callback DynamicCompleteFunc, pc ...LongShortCompleterInterface) *LongShortCompleter {
+func LongShortCompleterItemDynamic(callback DynamicCompleteFunc, children ...LongShortCompleterInterface) *LongShortCompleter {
 	return &LongShortCompleter{
 		Callback: callback,
 		Dynamic:  true,
-		Children: pc,
+		Children: children,
 	}
 }
 
 func (p *LongShortCompleter) Do(line []rune, pos int, long bool) (newLine [][]rune, offset int) {
-	return doLongShortInternal(p, line, pos, line)
+	return doLongShortInternal(p, line, pos, line, long)
 }
 
 // func Do(p LongShortCompleterInterface, line []rune, pos int) (newLine [][]rune, offset int) {
 // 	return doInternal(p, line, pos, line)
 // }
 
-func doLongShortInternal(p LongShortCompleterInterface, line []rune, pos int, origLine []rune) (newLine [][]rune, offset int) {
+func doLongShortInternal(p LongShortCompleterInterface, line []rune, pos int, origLine []rune, long bool) ([][]rune, int) {
+	// return values
+	var newLine [][]rune
+	var offset int
+
+	// clean input
 	line = readline.TrimSpaceLeft(line[:pos])
-	goNext := false
+
+	// defaults
+	var goNext bool
 	var lineCompleter LongShortCompleterInterface
 	for _, child := range p.GetChildren() {
 		childNames := make([][]rune, 1)
@@ -123,19 +132,25 @@ func doLongShortInternal(p LongShortCompleterInterface, line []rune, pos int, or
 		}
 
 		for _, childName := range childNames {
+			// try to match the line prefix with the first matching child (lengths and characters match)
 			if len(line) >= len(childName) {
 				if runes.HasPrefix(line, childName) {
 					if len(line) == len(childName) {
-						newLine = append(newLine, []rune{' '})
+						if len(child.GetChildren()) != 0 {
+							goNext = true
+							newLine = append(newLine, []rune{' '})
+						}
 					} else {
 						newLine = append(newLine, childName)
 					}
 					offset = len(childName)
 					lineCompleter = child
-					goNext = true
+					// goNext = true
 				}
 			} else {
+				// check if whole line matches a child
 				if runes.HasPrefix(childName, line) {
+					// the entire line already matches a child
 					newLine = append(newLine, childName[len(line):])
 					offset = len(line)
 					lineCompleter = child
@@ -145,21 +160,23 @@ func doLongShortInternal(p LongShortCompleterInterface, line []rune, pos int, or
 	}
 
 	if len(newLine) != 1 {
-		return
+		return newLine, offset
 	}
 
-	tmpLine := make([]rune, 0, len(line))
+	var tmpLine []rune
 	for i := offset; i < len(line); i++ {
 		if line[i] == ' ' {
 			continue
 		}
 
 		tmpLine = append(tmpLine, line[i:]...)
-		return doLongShortInternal(lineCompleter, tmpLine, len(tmpLine), origLine)
+		return doLongShortInternal(lineCompleter, tmpLine, len(tmpLine), origLine, long)
 	}
 
+	// process next word in line
 	if goNext {
-		return doLongShortInternal(lineCompleter, nil, 0, origLine)
+		return doLongShortInternal(lineCompleter, nil, 0, origLine, long)
 	}
-	return
+
+	return newLine, offset
 }

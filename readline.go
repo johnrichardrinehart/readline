@@ -87,6 +87,9 @@ type Config struct {
 	// -> output = new (translated) rune and true/false if continue with processing this one
 	FuncFilterInputRune func(rune) (rune, bool)
 
+	// should the line/string automatically be completed if only a single candidate matches the prefix
+	IsAutoComplete bool
+
 	// force use interactive even stdout is not a tty
 	FuncIsTerminal      func() bool
 	FuncMakeRaw         func() error

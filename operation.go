@@ -407,7 +407,9 @@ func (o *Operation) String() (string, error) {
 }
 
 func (o *Operation) Runes() ([]rune, error) {
-	o.t.EnterRawMode()
+	if err := o.t.EnterRawMode(); err != nil {
+		return nil, err
+	}
 	defer o.t.ExitRawMode()
 
 	listener := o.GetConfig().Listener

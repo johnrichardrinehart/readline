@@ -88,7 +88,7 @@ func (o *opCompleter) OnComplete() bool {
 	longMode := false
 	// if we're on a new token then we want to dump the long form
 
-	if o.op.buf.idx > 0 && unicode.IsSpace(o.op.buf.buf[o.op.buf.buf[o.op.buf.idx-1]]) {
+	if o.op.buf.idx > 0 && unicode.IsSpace(o.op.buf.buf[o.op.buf.idx-1]) {
 		longMode = true
 	}
 	newLines, offset := o.op.cfg.AutoComplete.Do(rs, buf.idx, longMode)
@@ -98,7 +98,8 @@ func (o *opCompleter) OnComplete() bool {
 	}
 
 	// only Aggregate candidates in non-complete mode
-	if !o.IsInCompleteMode() {
+	if !o.IsInCompleteMode() && o.op.cfg.IsAutoComplete {
+		// only one match
 		if len(newLines) == 1 {
 			buf.WriteRunes(newLines[0])
 			o.ExitCompleteMode(false)

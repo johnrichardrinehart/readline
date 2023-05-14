@@ -15,7 +15,7 @@ import (
 
 func usage(w io.Writer) {
 	io.WriteString(w, "commands:\n")
-	io.WriteString(w, completer.Tree("    "))
+	// io.WriteString(w, completer.Tree("    "))
 }
 
 // Function constructor - constructs new function for listing given directory
@@ -30,38 +30,39 @@ func listFiles(path string) func(string) []string {
 	}
 }
 
-var completer = completers.NewPrefixCompleter(
-	completers.LongShortItem("mode",
-		completers.LongShortItem("vi"),
-		completers.LongShortItem("emacs"),
+var completer = completers.NewLongShortCompleter(
+	completers.LongShortCompleterItem("mode", "this is a mode",
+		completers.LongShortCompleterItem("vi", "this is vi"),
+		completers.LongShortCompleterItem("emacs", "this is emacs"),
 	),
-	completers.LongShortItem("login"),
-	completers.LongShortItem("say",
-		completers.PcItemDynamic(listFiles("./"),
-			completers.LongShortItem("with",
-				completers.LongShortItem("following"),
-				completers.LongShortItem("items"),
+	completers.LongShortCompleterItem("login", "login"),
+	completers.LongShortCompleterItem("say", "say",
+		completers.LongShortCompleterItemDynamic(listFiles("./"),
+			completers.LongShortCompleterItem("with", "this is with",
+
+				completers.LongShortCompleterItem("following", "this is following"),
+				completers.LongShortCompleterItem("items", "this is items"),
 			),
 		),
-		completers.LongShortItem("hello"),
-		completers.LongShortItem("bye"),
+		completers.LongShortCompleterItem("hello", "hey there!"),
+		completers.LongShortCompleterItem("bye", "goodbye!"),
 	),
-	completers.LongShortItem("setprompt"),
-	completers.LongShortItem("setpassword"),
-	completers.LongShortItem("bye"),
-	completers.LongShortItem("quit"),
-	completers.LongShortItem("exit"),
-	completers.LongShortItem("help"),
-	completers.LongShortItem("go",
-		completers.LongShortItem("build", completers.LongShortItem("-o"), completers.LongShortItem("-v")),
-		completers.LongShortItem("install",
-			completers.LongShortItem("-v"),
-			completers.LongShortItem("-vv"),
-			completers.LongShortItem("-vvv"),
-		),
-		completers.LongShortItem("test"),
-	),
-	completers.LongShortItem("sleep"),
+	// completers.LongShortCompleterItem("setprompt"),
+	// completers.LongShortCompleterItem("setpassword"),
+	// completers.LongShortCompleterItem("bye"),
+	// completers.LongShortCompleterItem("quit"),
+	// completers.LongShortCompleterItem("exit"),
+	// completers.LongShortCompleterItem("help"),
+	// completers.LongShortCompleterItem("go",
+	// 	completers.LongShortCompleterItem("build", completers.LongShortCompleterItem("-o"), completers.LongShortCompleterItem("-v")),
+	// 	completers.LongShortCompleterItem("install",
+	// 		completers.LongShortCompleterItem("-v"),
+	// 		completers.LongShortCompleterItem("-vv"),
+	// 		completers.LongShortCompleterItem("-vvv"),
+	// 	),
+	// 	completers.LongShortCompleterItem("test"),
+	// ),
+	// completers.LongShortCompleterItem("sleep"),
 )
 
 func filterInput(r rune) (rune, bool) {
