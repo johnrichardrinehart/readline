@@ -1,4 +1,6 @@
-package readline
+package completers
+
+import "github.com/johnrichardrinehart/readline"
 
 type SegmentCompleter interface {
 	// a
@@ -25,7 +27,7 @@ func (d *dumpSegmentCompleter) DoSegment(segment [][]rune, n int) [][]rune {
 	return d.f(segment, n)
 }
 
-func SegmentFunc(f func([][]rune, int) [][]rune) AutoCompleter {
+func SegmentFunc(f func([][]rune, int) [][]rune) readline.AutoCompleter {
 	return &SegmentComplete{&dumpSegmentCompleter{f}}
 }
 
@@ -43,7 +45,7 @@ func RetSegment(segments [][]rune, cands [][]rune, idx int) ([][]rune, int) {
 	ret := make([][]rune, 0, len(cands))
 	lastSegment := segments[len(segments)-1]
 	for _, cand := range cands {
-		if !runes.HasPrefix(cand, lastSegment) {
+		if !readline.HasPrefix(cand, lastSegment) {
 			continue
 		}
 		ret = append(ret, cand[len(lastSegment):])

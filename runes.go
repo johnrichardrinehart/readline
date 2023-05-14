@@ -180,7 +180,7 @@ func (Runes) HasPrefixFold(r, prefix []rune) bool {
 	return runes.EqualFold(r[:len(prefix)], prefix)
 }
 
-func (Runes) HasPrefix(r, prefix []rune) bool {
+func HasPrefix(r, prefix []rune) bool {
 	if len(r) < len(prefix) {
 		return false
 	}
@@ -211,10 +211,10 @@ aggregate:
 	return
 }
 
-func (Runes) TrimSpaceLeft(in []rune) []rune {
+func TrimSpaceLeft(in []rune) []rune {
 	firstIndex := len(in)
 	for i, r := range in {
-		if unicode.IsSpace(r) == false {
+		if !unicode.IsSpace(r) {
 			firstIndex = i
 			break
 		}

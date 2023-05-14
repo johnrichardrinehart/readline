@@ -1,4 +1,4 @@
-package readline
+package completers
 
 import (
 	"fmt"

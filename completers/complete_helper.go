@@ -1,8 +1,11 @@
-package readline
+package completers
 
 import (
 	"bytes"
 	"strings"
+
+	"github.com/johnrichardrinehart/readline"
+	"github.com/johnrichardrinehart/readline/runes"
 )
 
 // Caller type for dynamic completion
@@ -109,7 +112,7 @@ func Do(p PrefixCompleterInterface, line []rune, pos int) (newLine [][]rune, off
 }
 
 func doInternal(p PrefixCompleterInterface, line []rune, pos int, origLine []rune) (newLine [][]rune, offset int) {
-	line = runes.TrimSpaceLeft(line[:pos])
+	line = readline.TrimSpaceLeft(line[:pos])
 	goNext := false
 	var lineCompleter PrefixCompleterInterface
 	for _, child := range p.GetChildren() {
