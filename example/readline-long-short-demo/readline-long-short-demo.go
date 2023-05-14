@@ -81,6 +81,7 @@ func main() {
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 
+		AutoCompleteKey:        readline.CharQuestion,
 		IsVerticalAutocomplete: true,
 
 		HistorySearchFold:   true,

@@ -87,8 +87,8 @@ func (o *opCompleter) OnComplete() bool {
 	o.candidateSource = rs
 	longMode := false
 	// if we're on a new token then we want to dump the long form
-	latestChar := o.op.buf.buf[o.op.buf.buf[o.op.buf.idx]-1]
-	if o.op.buf.idx == 0 || unicode.IsSpace(latestChar) {
+
+	if o.op.buf.idx > 0 && unicode.IsSpace(o.op.buf.buf[o.op.buf.buf[o.op.buf.idx-1]]) {
 		longMode = true
 	}
 	newLines, offset := o.op.cfg.AutoComplete.Do(rs, buf.idx, longMode)
