@@ -11,6 +11,19 @@ var TabWidth = 4
 
 type Runes struct{}
 
+func SliceOfStrings(in [][]rune) []string {
+	res := make([]string, len(in))
+	for idx, item := range in {
+		res[idx] = string(item)
+	}
+
+	return res
+}
+
+func ToString(in []rune) string {
+	return string(in)
+}
+
 func (Runes) EqualRune(a, b rune, fold bool) bool {
 	if a == b {
 		return true

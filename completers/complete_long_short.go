@@ -1,60 +1,33 @@
 package completers
 
 import (
+	"fmt"
+
 	"github.com/johnrichardrinehart/readline"
 	"github.com/johnrichardrinehart/readline/runes"
 )
 
-// // Caller type for dynamic completion
-// type DynamicCompleteFunc func(string) []string
+// type LongShortCompleterInterface interface {
+// 	Do(line []rune, pos int, long bool) (newLine [][]rune, length int)
+// 	GetName() []rune
+// 	GetChildren() []LongShortCompleterInterface
+// 	SetChildren(children []LongShortCompleterInterface)
+// }
 
-type LongShortCompleterInterface interface {
-	// Print(prefix string, level int, buf *bytes.Buffer)
-	Do(line []rune, pos int, long bool) (newLine [][]rune, length int)
-	GetName() []rune
-	GetChildren() []LongShortCompleterInterface
-	SetChildren(children []LongShortCompleterInterface)
-}
-
-type DynamicLongShortCompleterInterface interface {
-	LongShortCompleterInterface
-	IsDynamic() bool
-	GetDynamicNames(line []rune) [][]rune
-}
+// type DynamicLongShortCompleterInterface interface {
+// 	LongShortCompleterInterface
+// 	IsDynamic() bool
+// 	GetDynamicNames(line []rune) [][]rune
+// }
 
 type LongShortCompleter struct {
 	Name     []rune
 	Text     []rune
 	Dynamic  bool
 	Callback DynamicCompleteFunc
-	Children []LongShortCompleterInterface
+	Children []LongShortCompleter
+	// Children []LongShortCompleterInterface
 }
-
-// func (p *LongShortCompleter) Tree(prefix string) string {
-// 	buf := bytes.NewBuffer(nil)
-// 	p.Print(prefix, 0, buf)
-// 	return buf.String()
-// }
-
-// func Print(p LongShortCompleterInterface, prefix string, level int, buf *bytes.Buffer) {
-// 	if strings.TrimSpace(string(p.GetName())) != "" {
-// 		buf.WriteString(prefix)
-// 		if level > 0 {
-// 			buf.WriteString("├")
-// 			buf.WriteString(strings.Repeat("─", (level*4)-2))
-// 			buf.WriteString(" ")
-// 		}
-// 		buf.WriteString(string(p.GetName()) + "\n")
-// 		level++
-// 	}
-// 	for _, ch := range p.GetChildren() {
-// 		ch.Print(prefix, level, buf)
-// 	}
-// }
-
-// func (p *LongShortCompleter) Print(prefix string, level int, buf *bytes.Buffer) {
-// 	Print(p, prefix, level, buf)
-// }
 
 func (p *LongShortCompleter) IsDynamic() bool {
 	return p.Dynamic
@@ -72,21 +45,13 @@ func (p *LongShortCompleter) GetDynamicNames(line []rune) [][]rune {
 	return names
 }
 
-func (p *LongShortCompleter) GetChildren() []LongShortCompleterInterface {
-	return p.Children
-}
-
-func (p *LongShortCompleter) SetChildren(children []LongShortCompleterInterface) {
-	p.Children = children
-}
-
-func NewLongShortCompleter(pc ...LongShortCompleterInterface) *LongShortCompleter {
+func NewLongShortCompleter(pc ...LongShortCompleter) LongShortCompleter {
 	return LongShortCompleterItem("", "", pc...)
 }
 
-func LongShortCompleterItem(name, text string, children ...LongShortCompleterInterface) *LongShortCompleter {
+func LongShortCompleterItem(name, text string, children ...LongShortCompleter) LongShortCompleter {
 	name += ""
-	return &LongShortCompleter{
+	return LongShortCompleter{
 		Name:     []rune(name),
 		Text:     []rune(text),
 		Dynamic:  false,
@@ -94,8 +59,8 @@ func LongShortCompleterItem(name, text string, children ...LongShortCompleterInt
 	}
 }
 
-func LongShortCompleterItemDynamic(callback DynamicCompleteFunc, children ...LongShortCompleterInterface) *LongShortCompleter {
-	return &LongShortCompleter{
+func LongShortCompleterItemDynamic(callback DynamicCompleteFunc, children ...LongShortCompleter) LongShortCompleter {
+	return LongShortCompleter{
 		Callback: callback,
 		Dynamic:  true,
 		Children: children,
@@ -103,14 +68,10 @@ func LongShortCompleterItemDynamic(callback DynamicCompleteFunc, children ...Lon
 }
 
 func (p *LongShortCompleter) Do(line []rune, pos int, long bool) (newLine [][]rune, offset int) {
-	return doLongShortInternal(p, line, pos, line, long)
+	return doLongShortInternal(*p, line, pos, line, long)
 }
 
-// func Do(p LongShortCompleterInterface, line []rune, pos int) (newLine [][]rune, offset int) {
-// 	return doInternal(p, line, pos, line)
-// }
-
-func doLongShortInternal(p LongShortCompleterInterface, line []rune, pos int, origLine []rune, long bool) ([][]rune, int) {
+func doLongShortInternal(p LongShortCompleter, line []rune, pos int, origLine []rune, long bool) ([][]rune, int) {
 	// return values
 	var newLine [][]rune
 	var offset int
@@ -120,45 +81,46 @@ func doLongShortInternal(p LongShortCompleterInterface, line []rune, pos int, or
 
 	// defaults
 	var goNext bool
-	var lineCompleter LongShortCompleterInterface
-	for _, child := range p.GetChildren() {
-		childNames := make([][]rune, 1)
+	var lineCompleter LongShortCompleter
 
-		childDynamic, ok := child.(DynamicLongShortCompleterInterface)
-		if ok && childDynamic.IsDynamic() {
-			childNames = childDynamic.GetDynamicNames(origLine)
+	for _, child := range p.Children {
+		childNames := make([]string, 0)
+
+		if child.Callback != nil {
+			childNames = child.Callback(string(origLine))
 		} else {
-			childNames[0] = child.GetName()
+			childNames = append(childNames, string(child.Name))
 		}
 
 		for _, childName := range childNames {
 			// try to match the line prefix with the first matching child (lengths and characters match)
 			if len(line) >= len(childName) {
-				if runes.HasPrefix(line, childName) {
+				if runes.HasPrefix(line, []rune(childName)) {
 					if len(line) == len(childName) {
-						if len(child.GetChildren()) != 0 {
+						if child.Callback != nil {
 							goNext = true
 							newLine = append(newLine, []rune{' '})
 						}
 					} else {
-						newLine = append(newLine, childName)
+						newLine = append(newLine, []rune(fmt.Sprintf("%s\t%s", childName, string(child.Text))))
 					}
 					offset = len(childName)
 					lineCompleter = child
-					// goNext = true
+					goNext = true
 				}
 			} else {
 				// check if whole line matches a child
-				if runes.HasPrefix(childName, line) {
+				if runes.HasPrefix([]rune(childName), line) {
 					// the entire line already matches a child
-					newLine = append(newLine, childName[len(line):])
+					// newLine = append(newLine, []rune(childName[len(line):]))
+					newLine = append(newLine, []rune(fmt.Sprintf("%s\t\t%s", childName[len(line):], string(child.Text))))
+
 					offset = len(line)
 					lineCompleter = child
 				}
 			}
 		}
 	}
-
 	if len(newLine) != 1 {
 		return newLine, offset
 	}

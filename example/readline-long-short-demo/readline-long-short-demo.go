@@ -78,7 +78,7 @@ func main() {
 	l, err := readline.NewEx(&readline.Config{
 		Prompt:          "\033[31m»\033[0m ",
 		HistoryFile:     "/tmp/readline.tmp",
-		AutoComplete:    completer,
+		AutoComplete:    &completer,
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 
