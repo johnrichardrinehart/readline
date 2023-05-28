@@ -2,6 +2,8 @@ package completers
 
 import (
 	"fmt"
+	"strings"
+	"unicode"
 
 	"github.com/johnrichardrinehart/readline"
 	"github.com/johnrichardrinehart/readline/runes"
@@ -55,6 +57,7 @@ func (p *LongShortCompleter) Do(line []rune, pos int, long bool) (newLine [][]ru
 }
 
 func doLongShortInternal(p LongShortCompleter, line []rune, pos int, origLine []rune, long bool) ([][]rune, int) {
+	cleanedOrigLine := strings.TrimLeftFunc(string(origLine), unicode.IsSpace)
 	// return values
 	var newLine [][]rune
 	var offset int
@@ -85,7 +88,7 @@ func doLongShortInternal(p LongShortCompleter, line []rune, pos int, origLine []
 							newLine = append(newLine, []rune{' '})
 						}
 					} else {
-						if long {
+						if long || len(cleanedOrigLine) == 0 {
 							newLine = append(newLine, []rune(fmt.Sprintf("%s\t\t%s", childName, string(child.Text))))
 						} else {
 							if newLine == nil {
@@ -103,7 +106,7 @@ func doLongShortInternal(p LongShortCompleter, line []rune, pos int, origLine []
 				// check if whole line matches a child
 				if runes.HasPrefix([]rune(childName), line) {
 					// the entire line already matches a child
-					if long {
+					if long || len(cleanedOrigLine) == 0 {
 						newLine = append(newLine, []rune(fmt.Sprintf("%s\t\t%s", childName[len(line):], string(child.Text))))
 					} else {
 						if newLine == nil {
