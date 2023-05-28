@@ -7,30 +7,15 @@ import (
 	"github.com/johnrichardrinehart/readline/runes"
 )
 
-// type LongShortCompleterInterface interface {
-// 	Do(line []rune, pos int, long bool) (newLine [][]rune, length int)
-// 	GetName() []rune
-// 	GetChildren() []LongShortCompleterInterface
-// 	SetChildren(children []LongShortCompleterInterface)
-// }
-
-// type DynamicLongShortCompleterInterface interface {
-// 	LongShortCompleterInterface
-// 	IsDynamic() bool
-// 	GetDynamicNames(line []rune) [][]rune
-// }
-
 type LongShortCompleter struct {
 	Name     []rune
 	Text     []rune
-	Dynamic  bool
 	Callback DynamicCompleteFunc
 	Children []LongShortCompleter
-	// Children []LongShortCompleterInterface
 }
 
 func (p *LongShortCompleter) IsDynamic() bool {
-	return p.Dynamic
+	return p.Callback != nil
 }
 
 func (p *LongShortCompleter) GetName() []rune {
@@ -54,7 +39,6 @@ func LongShortCompleterItem(name, text string, children ...LongShortCompleter) L
 	return LongShortCompleter{
 		Name:     []rune(name),
 		Text:     []rune(text),
-		Dynamic:  false,
 		Children: children,
 	}
 }
@@ -62,7 +46,6 @@ func LongShortCompleterItem(name, text string, children ...LongShortCompleter) L
 func LongShortCompleterItemDynamic(callback DynamicCompleteFunc, children ...LongShortCompleter) LongShortCompleter {
 	return LongShortCompleter{
 		Callback: callback,
-		Dynamic:  true,
 		Children: children,
 	}
 }
