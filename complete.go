@@ -214,7 +214,6 @@ func (o *opCompleter) CompleteRefresh() {
 			if inSelect {
 				buf.WriteString("\033[30;47m")
 			}
-			buf.WriteString(string(same))
 			buf.WriteString(string(c))
 			buf.WriteString("\n")
 

@@ -85,7 +85,15 @@ func doLongShortInternal(p LongShortCompleter, line []rune, pos int, origLine []
 							newLine = append(newLine, []rune{' '})
 						}
 					} else {
-						newLine = append(newLine, []rune(fmt.Sprintf("%s\t%s", childName, string(child.Text))))
+						if long {
+							newLine = append(newLine, []rune(fmt.Sprintf("%s\t\t%s", childName, string(child.Text))))
+						} else {
+							if newLine == nil {
+								newLine = [][]rune{[]rune(childName)}
+							} else {
+								newLine[0] = []rune(fmt.Sprintf("%s\t%s", string(newLine[0]), childName))
+							}
+						}
 					}
 					offset = len(childName)
 					lineCompleter = child
@@ -95,8 +103,15 @@ func doLongShortInternal(p LongShortCompleter, line []rune, pos int, origLine []
 				// check if whole line matches a child
 				if runes.HasPrefix([]rune(childName), line) {
 					// the entire line already matches a child
-					// newLine = append(newLine, []rune(childName[len(line):]))
-					newLine = append(newLine, []rune(fmt.Sprintf("%s\t\t%s", childName[len(line):], string(child.Text))))
+					if long {
+						newLine = append(newLine, []rune(fmt.Sprintf("%s\t\t%s", childName[len(line):], string(child.Text))))
+					} else {
+						if newLine == nil {
+							newLine = [][]rune{[]rune(childName)}
+						} else {
+							newLine[0] = []rune(fmt.Sprintf("%s\t%s", string(newLine[0]), childName))
+						}
+					}
 
 					offset = len(line)
 					lineCompleter = child
