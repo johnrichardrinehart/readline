@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 	"unicode"
 )
 
@@ -104,7 +105,11 @@ func (o *opCompleter) OnComplete() bool {
 	if !o.IsInCompleteMode() && o.op.cfg.IsAutoComplete {
 		// only one match
 		if len(newLines) == 1 {
-			buf.WriteRunes(newLines[0][o.op.buf.idx:])
+			curLine := string(o.op.buf.buf)
+			lastSpaceIdx := strings.LastIndex(curLine, " ")
+			lastWord := o.op.buf.buf[lastSpaceIdx+1:]
+
+			buf.WriteRunes(newLines[0][len(lastWord):])
 			o.ExitCompleteMode(false)
 			return true
 		}
