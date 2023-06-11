@@ -104,7 +104,7 @@ func (o *opCompleter) OnComplete() bool {
 	if !o.IsInCompleteMode() && o.op.cfg.IsAutoComplete {
 		// only one match
 		if len(newLines) == 1 {
-			buf.WriteRunes(newLines[0])
+			buf.WriteRunes(newLines[0][o.op.buf.idx:])
 			o.ExitCompleteMode(false)
 			return true
 		}

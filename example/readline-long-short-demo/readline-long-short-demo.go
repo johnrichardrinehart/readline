@@ -70,7 +70,6 @@ func filterInput(r rune) (rune, bool) {
 func main() {
 	l, err := readline.NewEx(&readline.Config{
 		SortFunction: func(in [][]rune) {
-			fmt.Println("sorting the lines!")
 			sort.Slice(in, func(l1, l2 int) bool {
 				min := func(a, b int) int {
 					if a < b {
@@ -102,6 +101,8 @@ func main() {
 
 		AutoCompleteKey:        readline.CharQuestion,
 		IsVerticalAutocomplete: true,
+
+		IsAutoComplete: true,
 
 		HistorySearchFold:   true,
 		FuncFilterInputRune: filterInput,
