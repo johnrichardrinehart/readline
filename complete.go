@@ -92,6 +92,9 @@ func (o *opCompleter) OnComplete() bool {
 		longMode = true
 	}
 	newLines, offset := o.op.cfg.AutoComplete.Do(rs, buf.idx, longMode)
+	if o.op.cfg.SortFunction != nil {
+		o.op.cfg.SortFunction(newLines)
+	}
 	if len(newLines) == 0 {
 		o.ExitCompleteMode(false)
 		return true

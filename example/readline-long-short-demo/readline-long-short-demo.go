@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -68,6 +69,31 @@ func filterInput(r rune) (rune, bool) {
 
 func main() {
 	l, err := readline.NewEx(&readline.Config{
+		SortFunction: func(in [][]rune) {
+			fmt.Println("sorting the lines!")
+			sort.Slice(in, func(l1, l2 int) bool {
+				min := func(a, b int) int {
+					if a < b {
+						return a
+					}
+					return b
+				}
+
+				line1 := in[l1]
+				line2 := in[l2]
+
+				shortest := min(len(line1), len(line2))
+				for p := 0; p < shortest; p++ {
+					if line1[p] < line2[p] {
+						return true
+					} else if line1[p] > line2[p] {
+						return false
+					}
+				}
+
+				return false
+			})
+		},
 		Prompt:          "\033[31m»\033[0m ",
 		HistoryFile:     "/tmp/readline.tmp",
 		AutoComplete:    &completer,

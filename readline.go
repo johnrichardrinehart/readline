@@ -28,7 +28,9 @@ type Instance struct {
 }
 
 type Config struct {
-	// AutoCompleteKey - defaults to CharTab (0x09)
+	SortFunction func([][]rune)
+
+	// defaults to CharTab (0x09)
 	AutoCompleteKey rune
 
 	// prompt supports ANSI escape sequence, so we can color some characters even in windows
